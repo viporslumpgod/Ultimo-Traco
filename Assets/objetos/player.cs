@@ -1,4 +1,4 @@
-using JetBrains.Annotations;
+ï»¿using JetBrains.Annotations;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -12,7 +12,7 @@ public class player : MonoBehaviour
     public static player instance;
     public Rigidbody2D rb { get; private set; }
 
-    //Variaveis Movimentaçoes e Pulo
+    //Variaveis MovimentaÃ§oes e Pulo
     [SerializeField] float VelocidadePadrao;
     public float Velocidade;
     public float ForcaPulo = 10;
@@ -32,12 +32,12 @@ public class player : MonoBehaviour
 
     public ArmaPau ArmaEquipada;
 
-    // Variáveis do dash
+    // VariÃ¡veis do dash
     [SerializeField] float dashSpeed = 5f;
     [SerializeField] float dashDuration = 0.1f;
     [SerializeField] float dashCooldown = 1f;
     [SerializeField] public int vidaPlayer = 10;
-    [SerializeField] float wallHopForce = 10000f;  // Força do wall hop
+    [SerializeField] float wallHopForce = 10000f;  // ForÃ§a do wall hop
     [SerializeField] float wallHopTime = 1f;  // Tempo para permitir o wall hop
     public bool estaDashando = false;
     private bool podeDashar = true;
@@ -122,14 +122,14 @@ public class player : MonoBehaviour
     private void Update()
     {
 
-        // Direção do Raycast muda de acordo com a direção do player (esquerda ou direita)
+        // DireÃ§Ã£o do Raycast muda de acordo com a direÃ§Ã£o do player (esquerda ou direita)
         Vector2 direcaoRay = UltimaDirecao == 1 ? Vector2.right : Vector2.left;
 
-        // Lança o Raycast na direção que o player tá virado
+        // LanÃ§a o Raycast na direÃ§Ã£o que o player tÃ¡ virado
         SideHit = Physics2D.Raycast(transform.position, direcaoRay, sizeRaycastWall, jumpLayerMask);
         Debug.DrawRay(transform.position, direcaoRay * sizeRaycastWall, Color.green);
 
-        // Raycast pra baixo (pra checar o chão)
+        // Raycast pra baixo (pra checar o chÃ£o)
         DownHit = Physics2D.Raycast(transform.position, Vector2.down, transform.localScale.y / 3.5f + sizeRaycastjump, jumpLayerMask);
 
         if (DownHit.collider != null)
@@ -141,7 +141,7 @@ public class player : MonoBehaviour
             transform.SetParent(null);
         }
 
-        // Aqui o código de pulo, ataque, dash, etc.
+        // Aqui o cÃ³digo de pulo, ataque, dash, etc.
         Pulo();
         Ataque();
         estaNaParede();
@@ -193,7 +193,7 @@ public class player : MonoBehaviour
 
         yield return new WaitForSeconds(dashDuration);
 
-        rb.velocity = new Vector2(0, rb.velocity.y); // para o movimento horizontal após o dash
+        rb.velocity = new Vector2(0, rb.velocity.y); // para o movimento horizontal apÃ³s o dash
         rb.gravityScale = originalGravity; // volta a gravidade
 
 
@@ -294,42 +294,53 @@ public class player : MonoBehaviour
         }
     }
 
-    IEnumerator WallHop()
+   
+IEnumerator WallHop()
     {
-        // Se já está wallhoping, sai
+        // Se jï¿½ estï¿½ wallhoping, sai
         if (isWallHopping) yield break;
 
-        // Apenas pode pular se está tocando a parede
+        // Apenas pode pular se estï¿½ tocando a parede
         if (canWallHop && isTouchingWall)
         {
 
 
-            isWallHopping = true; // Marca que tá wallhoping
+            isWallHopping = true; // Marca que tï¿½ wallhoping
             rb.velocity = new Vector2(rb.velocity.x, 0); // Reseta a velocidade vertical
 
-            // Adiciona a força do pulo
+            // Adiciona a forï¿½a do pulo
             int PressingJump = Input.GetKey(Keycodepulo) ? 1 : 0;
             rb.AddForce(new Vector2(-UltimaDirecao, 1) * PressingJump * ForcaPulo);
 
             // Espera um tempo para permitir que o jogador suba
             yield return new WaitForSeconds(wallHopDelay);
 
-            // Verifica se ainda está tocando a parede
+            // Verifica se ainda estï¿½ tocando a parede
 
 
-            // Verifica se o jogador não está mais tocando a parede
+            // Verifica se o jogador nï¿½o estï¿½ mais tocando a parede
             if (SideHit == false && DownHit == false)
             {
-                // Espelha o player apenas após pular
-                float direction = UltimaDirecao == 1 ? -1 : 1; // Inverte a direção para o raycast
+                // Espelha o player apenas apï¿½s pular
+                float direction = UltimaDirecao == 1 ? -1 : 1; // Inverte a direï¿½ï¿½o para o raycast
                 isTouchingWall = Physics2D.Raycast(transform.position, direction == 1 ? Vector2.right : Vector2.left, sizeRaycastWall, jumpLayerMask);
-                UltimaDirecao *= -1;
-                transform.localScale = new Vector3(Mathf.Abs(transform.localScale.x) * UltimaDirecao, transform.localScale.y, transform.localScale.z);
+               
+               
+                if(UltimaDirecao == 1)
+                {
+                    UltimaDirecao *= -1;
+                    transform.localScale = new Vector3(-Mathf.Abs((transform.localScale.x) * UltimaDirecao), transform.localScale.y, transform.localScale.z);
+                }
+                else
+                {
+                    UltimaDirecao *= -1;
+                    transform.localScale = new Vector3(Mathf.Abs((transform.localScale.x) * -UltimaDirecao), transform.localScale.y, transform.localScale.z);
+                }
             }
 
             yield return new WaitForSeconds(wallHopDelay);
 
-            // Se não estiver tocando a parede, permite movimento
+            // Se nï¿½o estiver tocando a parede, permite movimento
             if (!isTouchingWall)
             {
                 podeMover = true; // Permite movimento normal
@@ -338,21 +349,23 @@ public class player : MonoBehaviour
             canWallJumpAgain = true; // Reseta a flag para permitir novo wall hop
         }
 
-        isWallHopping = false; // Reseta a flag após wallhop
+        isWallHopping = false; // Reseta a flag apï¿½s wallhop
     }
 
 
     public void estaNaParede()
     {
-        if (SideHit.collider != null && !estaNochao)
+        if (SideHit.collider != null && DownHit.collider == null)
         {
             estaNaParedi = true;
             ForcaPulo = 850;
+            podeAtacar = false;
         }
         else
         {
             estaNaParedi = false;
             ForcaPulo = 400;
+            podeAtacar = false;
         }
 
     }
@@ -368,10 +381,9 @@ public class player : MonoBehaviour
         else
         {
             capsuleCollider.enabled = true;
-            isCrouching = true;
+            isCrouching = false;
         }
     }
-
 
 
     void MovePlayer()
@@ -408,10 +420,10 @@ public class player : MonoBehaviour
             podeAtacar = false;
 
             // Projeta o player para frente durante o ataque
-            float ataqueProjecao = 2f; // Ajusta esse valor para o quanto você quer que ele se mova
+            float ataqueProjecao = 2f; // Ajusta esse valor para o quanto vocÃª quer que ele se mova
             rb.velocity = new Vector2(UltimaDirecao * ataqueProjecao, rb.velocity.y);
 
-            // Inicia a animação de ataque
+            // Inicia a animaÃ§Ã£o de ataque
             StartCoroutine(Espatula.instance.Ataque());
 
             // Espera um tempo para permitir que o ataque termine antes de poder se mover de novo

@@ -6639,12 +6639,14 @@ MonoBehaviour:
   wallHopForce: 20
   wallHopTime: 1.1
   estaDashando: 0
+  isTouchingWall: 0
   isWallHopping: 0
   delayDePulo: 1.5
+  estaNaParedi: 0
   cTynhia: 1
   sizeRaycastjumpCaindo: 0
   sizeRaycastjump: 2.2
-  sizeRaycastWall: 1.3
+  sizeRaycastWall: 1.4
   jumpLayerMask:
     serializedVersion: 2
     m_Bits: 8
@@ -6653,6 +6655,7 @@ MonoBehaviour:
   estaAtacando: 0
   podeMover: 0
   podeAtacar: 1
+  isCrouching: 0
 --- !u!50 &2089126895
 Rigidbody2D:
   serializedVersion: 4
