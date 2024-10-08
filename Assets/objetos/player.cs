@@ -1,3 +1,4 @@
+using JetBrains.Annotations;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -99,6 +100,7 @@ public class player : MonoBehaviour
 
         rb = GetComponent<Rigidbody2D>();
         jumpLayerMask = ~jumpLayerMask;
+        capsuleCollider = GetComponent<CapsuleCollider2D>();
 
     }
 
@@ -142,7 +144,8 @@ public class player : MonoBehaviour
         Pulo();
         Ataque();
         estaNaParede();
-        AmuletoEquipado.Efeito();
+        crouch();
+       
 
         if (Input.GetKeyDown(KeyCode.LeftShift) && podeDashar && !estaDashando)
         {
@@ -343,16 +346,28 @@ public class player : MonoBehaviour
         if (SideHit.collider != null && !estaNochao)
         {
             estaNaParedi = true;
+            ForcaPulo = 850;
         }
         else
         {
             estaNaParedi = false;
+            ForcaPulo = 400;
         }
 
     }
 
 
-
+    void crouch()
+    {
+        if (Input.GetKey(KeyCode.S))
+        {
+            capsuleCollider.enabled = false;
+        }
+        else
+        {
+            capsuleCollider.enabled = true;
+        }
+    }
 
 
 
