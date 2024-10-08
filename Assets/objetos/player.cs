@@ -80,6 +80,7 @@ public class player : MonoBehaviour
     public bool podeAtacar = true;
     private float wallHopDelay;
     private bool canWallJumpAgain;
+    public bool isCrouching;
     #endregion
 
     private void Awake()
@@ -362,10 +363,12 @@ public class player : MonoBehaviour
         if (Input.GetKey(KeyCode.S))
         {
             capsuleCollider.enabled = false;
+            isCrouching = true;
         }
         else
         {
             capsuleCollider.enabled = true;
+            isCrouching = true;
         }
     }
 
