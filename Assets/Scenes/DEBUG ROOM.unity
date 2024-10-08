@@ -6427,7 +6427,7 @@ Transform:
   m_GameObject: {fileID: 2061157568}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -15.12, y: -2.19, z: 0}
+  m_LocalPosition: {x: -11.03, y: -2.06, z: 0}
   m_LocalScale: {x: 2.11, y: 2.15, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -6617,10 +6617,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 01d5fa10b30a2b441acbbb1407290269, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  VelocidadePadrao: 650
-  Velocidade: 650
-  ForcaPulo: 900
-  ForcaPuloFrente: 900
+  VelocidadePadrao: 800
+  Velocidade: 800
+  ForcaPulo: 400
+  ForcaPuloFrente: 650
   puloduplo: 0
   MaxPayne: 2
   Keycodepulo: 32
@@ -6649,6 +6649,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 8
   animator: {fileID: 0}
+  estaAndando: 0
   estaAtacando: 0
   podeMover: 0
   podeAtacar: 1

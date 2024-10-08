@@ -25,7 +25,7 @@ public class player : MonoBehaviour
 
 
     [SerializeField] Modificadores modificadores;
-   
+
 
     public AmuletoVida AmuletoEquipado;
 
@@ -48,14 +48,15 @@ public class player : MonoBehaviour
     public bool isWallHopping;
     bool podePular;
     public float delayDePulo = 1.5f;
-    
+    public bool estaNaParedi = false;
+
 
     // Variavel cTynhia
     public bool cTynhia = false;
-   
-    
+
+
     LayerMask enemylayer;
-    
+
     //Raycasts
     RaycastHit2D DownHit; // Raycast Pulo
     RaycastHit2D SideHit; // Raycast Paredes
@@ -66,10 +67,10 @@ public class player : MonoBehaviour
     [Tooltip("checked todas as layers que voce deseja que o player ignore quando for pular, inclua a layer player")]
     public LayerMask jumpLayerMask;
     [Tooltip("define o tamanho do raycast de pulo")]
-   
+
     #region Var animacoes 
     public Animator animator;
-    bool estaAndando;
+    public bool estaAndando;
     public bool estaAtacando;
     bool estaNochao;
     bool estaCaindo;
@@ -98,19 +99,19 @@ public class player : MonoBehaviour
 
         rb = GetComponent<Rigidbody2D>();
         jumpLayerMask = ~jumpLayerMask;
-        
+
     }
 
     void FixedUpdate()
     {
         MovePlayer();
         RaycastInteractions(DownHit);
-        
+
     }
 
     void Start()
     {
-        
+
         Velocidade = VelocidadePadrao;
         animator = GetComponent<Animator>();
     }
@@ -140,7 +141,7 @@ public class player : MonoBehaviour
         // Aqui o código de pulo, ataque, dash, etc.
         Pulo();
         Ataque();
-
+        estaNaParede();
         AmuletoEquipado.Efeito();
 
         if (Input.GetKeyDown(KeyCode.LeftShift) && podeDashar && !estaDashando)
@@ -167,11 +168,11 @@ public class player : MonoBehaviour
             podeMover = true;
         }
     }
-    
+
     void RaycastInteractions(RaycastHit2D Ray)
     {
 
-        if(Ray.collider.gameObject.GetComponent<plataforma>() != null)
+        if (Ray.collider.gameObject.GetComponent<plataforma>() != null)
         {
             Ray.collider.gameObject.GetComponent<plataforma>().PlayerEmCima();
         }
@@ -182,23 +183,23 @@ public class player : MonoBehaviour
         estaDashando = true;
         podeDashar = false;
 
-     float originalGravity = rb.gravityScale;
+        float originalGravity = rb.gravityScale;
         rb.gravityScale = 0f; // desativa a gravidade durante o dash
-        rb.velocity = new Vector2(UltimaDirecao * dashSpeed, 0f); 
+        rb.velocity = new Vector2(UltimaDirecao * dashSpeed, 0f);
 
         yield return new WaitForSeconds(dashDuration);
 
         rb.velocity = new Vector2(0, rb.velocity.y); // para o movimento horizontal após o dash
         rb.gravityScale = originalGravity; // volta a gravidade
-        
-       
+
+
         estaDashando = false;
         animator.SetBool("dash", estaDashando);
         yield return new WaitForSeconds(dashCooldown); // cooldown do dash
         podeDashar = true;
 
 
-       
+
 
 
     }
@@ -213,13 +214,14 @@ public class player : MonoBehaviour
         {
             Vector2 direcaoRay = UltimaDirecao == 1 ? Vector2.right : Vector2.left;
             puloduplo++;
-           
+
             StartCoroutine(DelayDePulo());
-          
+
             if (DownHit.collider != null || puloduplo < MaxPayne)
             {
 
-                if(UltimaDirecao == 1)
+
+                if (UltimaDirecao == 1 && estaAndando)
                 {
                     rb.velocity = new Vector2(rb.velocity.x, 0);
                     rb.AddForce(new Vector2(1, 1) * ForcaPulo);
@@ -232,8 +234,23 @@ public class player : MonoBehaviour
                     rb.AddForce(direcaoRay * ForcaPulo);
                 }
 
+                if (UltimaDirecao == 1 && !estaAndando)
+                {
+                    rb.velocity = new Vector2(rb.velocity.x, 0);
+                    rb.AddForce(new Vector2(5, 1) * ForcaPuloFrente);
+                    rb.AddForce(direcaoRay * ForcaPuloFrente);
+                }
+                else
+                {
+                    rb.velocity = new Vector2(rb.velocity.x, 0);
+                    rb.AddForce(new Vector2(-5, 1) * ForcaPulo);
+                    rb.AddForce(direcaoRay * ForcaPulo);
+                }
+
                 estaPulando = true;
                 estaCaindo = false;
+
+
                 if (puloduplo == 2)
                 {
                     DelayDePulo();
@@ -247,11 +264,11 @@ public class player : MonoBehaviour
         animator.SetBool("caindo", estaCaindo);
         estaCaindo = false;
         animator.SetBool("estaPulando", estaPulando);
-       
+
         if (DownHit.collider != null)
         {
             Debug.DrawRay(transform.position, Vector2.down * (transform.localScale.y / 3f + sizeRaycastjump), Color.red);
-             
+
 
             estaPulando = false;
             estaNochao = true;
@@ -263,13 +280,13 @@ public class player : MonoBehaviour
 
         }
         else
-        {          
+        {
             estaPulando = true;
             Debug.DrawRay(transform.position, Vector2.down * (transform.localScale.y / sizeRaycastjumpCaindo), Color.blue);
             estaCaindo = true;
             estaNochao = false;
             return true;
-           
+
         }
     }
 
@@ -294,7 +311,7 @@ public class player : MonoBehaviour
             yield return new WaitForSeconds(wallHopDelay);
 
             // Verifica se ainda está tocando a parede
-           
+
 
             // Verifica se o jogador não está mais tocando a parede
             if (SideHit == false && DownHit == false)
@@ -317,11 +334,22 @@ public class player : MonoBehaviour
             canWallJumpAgain = true; // Reseta a flag para permitir novo wall hop
         }
 
-        isWallHopping = false; // Reseta a flag após wallhop
+        isWallHopping = false;
     }
 
 
-
+    public void estaNaParede()
+    {
+        if(SideHit.collider != null && !estaNochao)
+        {
+            estaNaParedi = true;
+        }
+        else
+        {
+            estaNaParedi = false;
+        }
+        
+    }
 
 
 
@@ -335,6 +363,7 @@ public class player : MonoBehaviour
             if (podeMover == true && (Input.GetAxisRaw("Horizontal") != 0))
             {
                 rb.velocity = new Vector2(Input.GetAxisRaw("Horizontal") * Velocidade * Time.deltaTime, rb.velocity.y);
+                //podeAtacar = false;
                 estaAndando = true;
                 UltimaDirecao = (int)Input.GetAxisRaw("Horizontal");
                 transform.localScale = new Vector3(Mathf.Abs(transform.localScale.x) * UltimaDirecao, transform.localScale.y, transform.localScale.z);
@@ -344,6 +373,7 @@ public class player : MonoBehaviour
             {
                 animator.SetBool("andando", estaAndando);
                 estaAndando = false;
+                //podeAtacar = true;
             }
 
 
@@ -353,14 +383,29 @@ public class player : MonoBehaviour
 
     public void Ataque()
     {
-
         if (Input.GetMouseButtonDown(0) && podeAtacar == true)
         {
+            podeMover = false; // Impede o movimento enquanto ataca
             estaAtacando = true;
             podeAtacar = false;
-            StartCoroutine(Espatula.instance.Ataque());
-        }
 
+            // Projeta o player para frente durante o ataque
+            float ataqueProjecao = 2f; // Ajusta esse valor para o quanto você quer que ele se mova
+            rb.velocity = new Vector2(UltimaDirecao * ataqueProjecao, rb.velocity.y);
+
+            // Inicia a animação de ataque
+            StartCoroutine(Espatula.instance.Ataque());
+
+            // Espera um tempo para permitir que o ataque termine antes de poder se mover de novo
+            StartCoroutine(ResetarMovimentoAposAtaque());
+        }
+    }
+    IEnumerator ResetarMovimentoAposAtaque()
+    {
+        yield return new WaitForSeconds(0.5f); // Define o tempo do ataque antes de permitir o movimento de novo
+        podeMover = true;
+        estaAtacando = false;
+        podeAtacar = true;
     }
 
     public virtual void levaDano(int dano)
