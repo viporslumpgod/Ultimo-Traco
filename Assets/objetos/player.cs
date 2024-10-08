@@ -43,13 +43,13 @@ public class player : MonoBehaviour
 
     // Variaveis Wallhop
     float wallHopAirTime = 1f;
-    bool isTouchingWall;
+    public bool isTouchingWall;
     bool canWallHop;
     public bool isWallHopping;
     bool podePular;
     public float delayDePulo = 1.5f;
-    public bool estaNaParedi = false;
-
+    public bool estaNaParedi;
+    
 
     // Variavel cTynhia
     public bool cTynhia = false;
@@ -334,13 +334,13 @@ public class player : MonoBehaviour
             canWallJumpAgain = true; // Reseta a flag para permitir novo wall hop
         }
 
-        isWallHopping = false;
+        isWallHopping = false; // Reseta a flag após wallhop
     }
 
 
     public void estaNaParede()
     {
-        if(SideHit.collider != null && !estaNochao)
+        if (SideHit.collider != null && !estaNochao)
         {
             estaNaParedi = true;
         }
@@ -348,7 +348,7 @@ public class player : MonoBehaviour
         {
             estaNaParedi = false;
         }
-        
+
     }
 
 
