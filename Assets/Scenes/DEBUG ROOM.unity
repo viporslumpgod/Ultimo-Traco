@@ -2774,7 +2774,7 @@ GameObject:
   - component: {fileID: 857636991}
   - component: {fileID: 857636993}
   - component: {fileID: 857636992}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: paralax 4 (6)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4177,7 +4177,7 @@ GameObject:
   - component: {fileID: 1335274849}
   - component: {fileID: 1335274851}
   - component: {fileID: 1335274850}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: paralax 4 (3)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -6624,26 +6624,15 @@ MonoBehaviour:
   puloduplo: 0
   MaxPayne: 2
   Keycodepulo: 32
-  modificadores:
-    vidaPlayerMax: 10
-    dano: 0
-    atackSpeed: 0
-    VelocidadePadrao: 0
-    VelocidadeBonus: 0
-  AmuletoEquipado: {fileID: 1832361224}
-  ArmaEquipada: {fileID: 0}
   dashSpeed: 50
   dashDuration: 0.2
   dashCooldown: 2
   vidaPlayer: 10
-  wallHopForce: 20
-  wallHopTime: 1.1
   estaDashando: 0
-  isTouchingWall: 0
-  isWallHopping: 0
+  isWallSliding: 0
+  wallSlidingSpeed: 0
   delayDePulo: 1.5
-  estaNaParedi: 0
-  cTynhia: 1
+  isOnTheWall: 0
   sizeRaycastjumpCaindo: 0
   sizeRaycastjump: 2.2
   sizeRaycastWall: 1.4

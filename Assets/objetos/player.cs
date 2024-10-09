@@ -19,39 +19,29 @@ public class player : MonoBehaviour
     public float ForcaPuloFrente = 10;
     public int puloduplo = 0;
     public int MaxPayne = 2;
-    int UltimaDirecao = 1;
+    float horizontal;
+    bool isFacingRight = true;
     bool estaPulando;
     [SerializeField] KeyCode Keycodepulo;
     CapsuleCollider2D capsuleCollider;
-
-
-    [SerializeField] Modificadores modificadores;
-
-
-    public AmuletoVida AmuletoEquipado;
-
-    public ArmaPau ArmaEquipada;
 
     // Variáveis do dash
     [SerializeField] float dashSpeed = 5f;
     [SerializeField] float dashDuration = 0.1f;
     [SerializeField] float dashCooldown = 1f;
     [SerializeField] public int vidaPlayer = 10;
-    [SerializeField] float wallHopForce = 10000f;  // Força do wall hop
-    [SerializeField] float wallHopTime = 1f;  // Tempo para permitir o wall hop
     public bool estaDashando = false;
     private bool podeDashar = true;
 
-    // Variaveis Wallhop
+    // Variaveis WallJump
     public bool isWallSliding;
     public float wallSlidingSpeed;
-
-
-
-
-
-
-
+    private bool isWallJumping;
+    private float wallJumpingDirection;
+    private float wallJumpingTime = 0.2f;
+    private float wallJumpingCounter;
+    private float wallJumpingDuration = 0.4f;
+    private Vector2 wallJumpingPower = new Vector2(8f, 16f);
     public float delayDePulo = 1.5f;
     public bool isOnTheWall;
    
@@ -61,13 +51,12 @@ public class player : MonoBehaviour
 
     LayerMask enemylayer;
 
-    //Raycasts
+    //Raycasts e variaveis
     RaycastHit2D DownHit; // Raycast Pulo
     RaycastHit2D SideHit; // Raycast Paredes
     [SerializeField] float sizeRaycastjumpCaindo = 0.3f;
     [SerializeField] float sizeRaycastjump = 2.4f;
     [SerializeField] float sizeRaycastWall = 2f;
-
     [Tooltip("checked todas as layers que voce deseja que o player ignore quando for pular, inclua a layer player")]
     public LayerMask jumpLayerMask;
     [Tooltip("define o tamanho do raycast de pulo")]
@@ -76,7 +65,7 @@ public class player : MonoBehaviour
     public Animator animator;
     public bool estaAndando;
     public bool estaAtacando;
-    bool estaNochao;
+    bool taNoChao;
     bool estaCaindo;
     bool aterrizando;
     private bool podePular;
@@ -92,7 +81,6 @@ public class player : MonoBehaviour
         podePular = true;
         podeMover = true;
         estaAtacando = false;
-        vidaPlayer = modificadores.vidaPlayerMax;
         puloduplo = 0;
         if (instance == null)
         {
@@ -127,7 +115,7 @@ public class player : MonoBehaviour
     {
 
         // Direção do Raycast muda de acordo com a direção do player (esquerda ou direita)
-        Vector2 direcaoRay = UltimaDirecao == 1 ? Vector2.right : Vector2.left;
+        Vector2 direcaoRay = horizontal == 1 ? Vector2.right : Vector2.left;
 
         // Lança o Raycast na direção que o player tá virado
         SideHit = Physics2D.Raycast(transform.position, direcaoRay, sizeRaycastWall, jumpLayerMask);
@@ -150,6 +138,14 @@ public class player : MonoBehaviour
         Ataque();
         IsWalled();
         crouch();
+        WallSlide();
+        WallJump();
+        Flip(); 
+
+        if (!isWallJumping) 
+        {
+            
+        }
 
         
 
@@ -179,7 +175,7 @@ public class player : MonoBehaviour
 
         float originalGravity = rb.gravityScale;
         rb.gravityScale = 0f; // desativa a gravidade durante o dash
-        rb.velocity = new Vector2(UltimaDirecao * dashSpeed, 0f);
+        rb.velocity = new Vector2(horizontal * dashSpeed, 0f);
 
         yield return new WaitForSeconds(dashDuration);
 
@@ -206,7 +202,7 @@ public class player : MonoBehaviour
     {
         if (Input.GetKeyDown(Keycodepulo) && podePular)
         {
-            Vector2 direcaoRay = UltimaDirecao == 1 ? Vector2.right : Vector2.left;
+            Vector2 direcaoRay = horizontal == 1 ? Vector2.right : Vector2.left;
             puloduplo++;
 
             StartCoroutine(DelayDePulo());
@@ -215,7 +211,7 @@ public class player : MonoBehaviour
             {
 
 
-                if (UltimaDirecao == 1 && estaAndando)
+                if (horizontal == 1 && estaAndando)
                 {
                     rb.velocity = new Vector2(rb.velocity.x, 0);
                     rb.AddForce(new Vector2(1, 1) * ForcaPulo);
@@ -228,7 +224,7 @@ public class player : MonoBehaviour
                     rb.AddForce(direcaoRay * ForcaPulo);
                 }
 
-                if (UltimaDirecao == 1 && !estaAndando)
+                if (horizontal == 1 && !estaAndando)
                 {
                     rb.velocity = new Vector2(rb.velocity.x, 0);
                     rb.AddForce(new Vector2(5, 1) * ForcaPuloFrente);
@@ -265,10 +261,10 @@ public class player : MonoBehaviour
 
 
             estaPulando = false;
-            estaNochao = true;
+            taNoChao = true;
             aterrizando = true;
             MaxPayne = 2;
-            animator.SetBool("noChao", estaNochao);
+            animator.SetBool("noChao", taNoChao);
             puloduplo = 0;
             return false;
 
@@ -278,34 +274,111 @@ public class player : MonoBehaviour
             estaPulando = true;
             Debug.DrawRay(transform.position, Vector2.down * (transform.localScale.y / sizeRaycastjumpCaindo), Color.blue);
             estaCaindo = true;
-            estaNochao = false;
+            taNoChao = false;
             return true;
 
         }
     }
 
-   
+   //ALL WALLJUMP START
     
     
+    private void Flip()
+    {
+        if (isFacingRight && horizontal < 0f || isFacingRight && horizontal > 1f)
+        {
+            isFacingRight = !isFacingRight;
+            Vector3 localScale = transform.localScale;
+            localScale.x *= -1f;
+            transform.localScale = localScale;
+        }
+    }
+    private void WallJump()
+    {
+        if  (isWallSliding)
+        {
+            isWallJumping = false;
+            wallJumpingDirection = -transform.localScale.x;
+            wallJumpingCounter = wallJumpingTime;
+
+            CancelInvoke(nameof(StopWallJumping));
+        }
+        else
+        {
+            wallJumpingCounter -= Time.deltaTime;
+        }
+
+        if (Input.GetKeyDown(Keycodepulo) && wallJumpingCounter > 0f)
+        {
+            isWallJumping = true;
+            rb.velocity = new Vector2(wallJumpingDirection * wallJumpingPower.x, wallJumpingPower.y);
+            wallJumpingCounter = 0f;
+
+            if (transform.localScale.x != wallJumpingDirection)
+            {
+                horizontal *= -1;
+                Vector3 localScale = transform.localScale;
+                localScale.x *= -1f;
+                transform.localScale = localScale;
+
+            }
+        
+
+            Invoke(nameof(StopWallJumping), wallJumpingDuration);
+        }
+    }
+
+    private void StopWallJumping()
+    {
+        isWallJumping = false;
+    }
+
+    bool IsGrounded()
+    {
+        if (DownHit.collider != null)
+        {
+            return true;
+        }
+        else 
+        {
+            return false;
+        }
+    }
 
 
-    public void IsWalled()
+    public bool IsWalled()
     {
         if (SideHit.collider != null && DownHit.collider == null)
         {
             isOnTheWall = true;
             ForcaPulo = 850;
             podeAtacar = false;
+            return true;
         }
         else
         {
             isOnTheWall = false;
             ForcaPulo = 400;
             podeAtacar = false;
+            return false;
         }
 
     }
 
+    private void WallSlide()
+    {
+        if (IsWalled() && !IsGrounded() && transform.position.x != 0f) 
+        {
+            isWallSliding = true;
+            rb.velocity = new Vector2(rb.velocity.x, Mathf.Clamp(rb.velocity.y, -wallSlidingSpeed, float.MaxValue));
+        }
+        else
+        {
+            isWallSliding = false;
+        }
+    }
+
+    //ALL WALLJUMP END
 
     void crouch()
     {
@@ -331,8 +404,8 @@ public class player : MonoBehaviour
                 rb.velocity = new Vector2(Input.GetAxisRaw("Horizontal") * Velocidade * Time.deltaTime, rb.velocity.y);
                 //podeAtacar = false;
                 estaAndando = true;
-                UltimaDirecao = (int)Input.GetAxisRaw("Horizontal");
-                transform.localScale = new Vector3(Mathf.Abs(transform.localScale.x) * UltimaDirecao, transform.localScale.y, transform.localScale.z);
+                horizontal = Input.GetAxisRaw("Horizontal");
+                transform.localScale = new Vector3(Mathf.Abs(transform.localScale.x) * horizontal, transform.localScale.y, transform.localScale.z);
                 animator.SetBool("andando", estaAndando);
             }
             else
@@ -357,7 +430,7 @@ public class player : MonoBehaviour
 
             // Projeta o player para frente durante o ataque
             float ataqueProjecao = 2f; // Ajusta esse valor para o quanto você quer que ele se mova
-            rb.velocity = new Vector2(UltimaDirecao * ataqueProjecao, rb.velocity.y);
+            rb.velocity = new Vector2(horizontal * ataqueProjecao, rb.velocity.y);
 
             // Inicia a animação de ataque
             StartCoroutine(Espatula.instance.Ataque());
