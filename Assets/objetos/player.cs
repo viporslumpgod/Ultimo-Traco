@@ -135,6 +135,7 @@ public class player : MonoBehaviour
 
         // Aqui o código de pulo, ataque, dash, etc.
         Pulo();
+        PuloCarregado();
         Ataque();
         IsWalled();
         crouch();
@@ -211,31 +212,19 @@ public class player : MonoBehaviour
             {
 
 
-                if (horizontal == 1 && estaAndando)
+                if (horizontal == 1)
                 {
                     rb.velocity = new Vector2(rb.velocity.x, 0);
                     rb.AddForce(new Vector2(1, 1) * ForcaPulo);
-                    rb.AddForce(direcaoRay * ForcaPulo);
+                   // rb.AddForce(direcaoRay * ForcaPulo);
                 }
-                else
+                else 
                 {
                     rb.velocity = new Vector2(rb.velocity.x, 0);
                     rb.AddForce(new Vector2(-1, 1) * ForcaPulo);
-                    rb.AddForce(direcaoRay * ForcaPulo);
+                    //rb.AddForce(direcaoRay * ForcaPulo);
                 }
-
-                if (horizontal == 1 && !estaAndando)
-                {
-                    rb.velocity = new Vector2(rb.velocity.x, 0);
-                    rb.AddForce(new Vector2(5, 1) * ForcaPuloFrente);
-                    rb.AddForce(direcaoRay * ForcaPuloFrente);
-                }
-                else
-                {
-                    rb.velocity = new Vector2(rb.velocity.x, 0);
-                    rb.AddForce(new Vector2(-5, 1) * ForcaPulo);
-                    rb.AddForce(direcaoRay * ForcaPulo);
-                }
+              
 
                 estaPulando = true;
                 estaCaindo = false;
@@ -279,6 +268,43 @@ public class player : MonoBehaviour
 
         }
     }
+
+    
+    void PuloCarregado()
+    {
+
+        if (Input.GetKeyDown(Keycodepulo) && podePular && taNoChao && isCrouching)
+        {
+            puloduplo = 2;
+            Vector2 direcaoRay = horizontal == 1 ? Vector2.right : Vector2.left;
+            if (horizontal == 1)
+            {
+                rb.velocity = new Vector2(rb.velocity.x, 0);
+                rb.AddForce(new Vector2(1, 1) * ForcaPulo);
+                rb.AddForce(direcaoRay * ForcaPulo);
+
+            }
+            else if (horizontal == -1)
+            {
+                rb.velocity = new Vector2(rb.velocity.x, 0);
+                rb.AddForce(new Vector2(-1, 1) * ForcaPulo);
+                rb.AddForce(direcaoRay * ForcaPulo);
+
+            }
+
+            estaPulando = true;
+            estaCaindo = false;
+
+
+            if (puloduplo == 2)
+            {
+                DelayDePulo();
+            }
+
+
+        }
+    }
+
 
    //ALL WALLJUMP START
     
@@ -358,7 +384,7 @@ public class player : MonoBehaviour
         else
         {
             isOnTheWall = false;
-            ForcaPulo = 400;
+            ForcaPulo = 690;
             podeAtacar = false;
             return false;
         }
@@ -382,7 +408,7 @@ public class player : MonoBehaviour
 
     void crouch()
     {
-        if (Input.GetKey(KeyCode.S))
+        if (Input.GetKey(KeyCode.S) && taNoChao)
         {
             capsuleCollider.enabled = false;
             isCrouching = true;
@@ -402,7 +428,7 @@ public class player : MonoBehaviour
             if (podeMover == true && (Input.GetAxisRaw("Horizontal") != 0))
             {
                 rb.velocity = new Vector2(Input.GetAxisRaw("Horizontal") * Velocidade * Time.deltaTime, rb.velocity.y);
-                //podeAtacar = false;
+                
                 estaAndando = true;
                 horizontal = Input.GetAxisRaw("Horizontal");
                 transform.localScale = new Vector3(Mathf.Abs(transform.localScale.x) * horizontal, transform.localScale.y, transform.localScale.z);
@@ -412,7 +438,7 @@ public class player : MonoBehaviour
             {
                 animator.SetBool("andando", estaAndando);
                 estaAndando = false;
-                //podeAtacar = true;
+               
             }
 
 
@@ -429,7 +455,7 @@ public class player : MonoBehaviour
             podeAtacar = false;
 
             // Projeta o player para frente durante o ataque
-            float ataqueProjecao = 2f; // Ajusta esse valor para o quanto você quer que ele se mova
+            float ataqueProjecao = 9f; // Ajusta esse valor para o quanto você quer que ele se mova
             rb.velocity = new Vector2(horizontal * ataqueProjecao, rb.velocity.y);
 
             // Inicia a animação de ataque
