@@ -27,7 +27,7 @@ public class Espatula : MonoBehaviour
     // Sobrescrevendo o método Start para modificar as variáveis específicas da Espátula
     protected virtual void Start()
     {
-        player.instance.GetComponent<Collider2D>().enabled = true;  //ativar o collider do player
+        //player.instance.GetComponent<Collider2D>().enabled = true;  //ativar o collider do player
         instance = this;
 
         // Configurações iniciais padrão que podem ser modificadas nas classes filhas

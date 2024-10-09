@@ -43,17 +43,20 @@ public class player : MonoBehaviour
     private bool podeDashar = true;
 
     // Variaveis Wallhop
-    float wallHopAirTime = 1f;
-    public bool isTouchingWall;
-    bool canWallHop;
-    public bool isWallHopping;
-    bool podePular;
-    public float delayDePulo = 1.5f;
-    public bool estaNaParedi;
-    
+    public bool isWallSliding;
+    public float wallSlidingSpeed;
 
+
+
+
+
+
+
+    public float delayDePulo = 1.5f;
+    public bool isOnTheWall;
+   
     // Variavel cTynhia
-    public bool cTynhia = false;
+    private bool cTynhia = true;
 
 
     LayerMask enemylayer;
@@ -76,6 +79,7 @@ public class player : MonoBehaviour
     bool estaNochao;
     bool estaCaindo;
     bool aterrizando;
+    private bool podePular;
     public bool podeMover;
     public bool podeAtacar = true;
     private float wallHopDelay;
@@ -144,9 +148,10 @@ public class player : MonoBehaviour
         // Aqui o código de pulo, ataque, dash, etc.
         Pulo();
         Ataque();
-        estaNaParede();
+        IsWalled();
         crouch();
-       
+
+        
 
         if (Input.GetKeyDown(KeyCode.LeftShift) && podeDashar && !estaDashando)
         {
@@ -154,23 +159,8 @@ public class player : MonoBehaviour
             animator.SetBool("dash", estaDashando);
         }
 
-        // Atualiza capacidade de wall hop
-        if (SideHit.collider != null && DownHit.collider == null)
-        {
-            isTouchingWall = SideHit;
-
-            canWallHop = SideHit && !estaNochao && rb.velocity.y != 0 && isTouchingWall;
-
-            if (canWallHop)
-            {
-                StartCoroutine(WallHop());
-            }
-        }
-        else
-        {
-            canWallHop = false;
-            podeMover = true;
-        }
+        
+        
     }
 
     void RaycastInteractions(RaycastHit2D Ray)
@@ -295,75 +285,21 @@ public class player : MonoBehaviour
     }
 
    
-IEnumerator WallHop()
-    {
-        // Se j� est� wallhoping, sai
-        if (isWallHopping) yield break;
-
-        // Apenas pode pular se est� tocando a parede
-        if (canWallHop && isTouchingWall)
-        {
+    
+    
 
 
-            isWallHopping = true; // Marca que t� wallhoping
-            rb.velocity = new Vector2(rb.velocity.x, 0); // Reseta a velocidade vertical
-
-            // Adiciona a for�a do pulo
-            int PressingJump = Input.GetKey(Keycodepulo) ? 1 : 0;
-            rb.AddForce(new Vector2(-UltimaDirecao, 1) * PressingJump * ForcaPulo);
-
-            // Espera um tempo para permitir que o jogador suba
-            yield return new WaitForSeconds(wallHopDelay);
-
-            // Verifica se ainda est� tocando a parede
-
-
-            // Verifica se o jogador n�o est� mais tocando a parede
-            if (SideHit == false && DownHit == false)
-            {
-                // Espelha o player apenas ap�s pular
-                float direction = UltimaDirecao == 1 ? -1 : 1; // Inverte a dire��o para o raycast
-                isTouchingWall = Physics2D.Raycast(transform.position, direction == 1 ? Vector2.right : Vector2.left, sizeRaycastWall, jumpLayerMask);
-               
-               
-                if(UltimaDirecao == 1)
-                {
-                    UltimaDirecao *= -1;
-                    transform.localScale = new Vector3(-Mathf.Abs((transform.localScale.x) * UltimaDirecao), transform.localScale.y, transform.localScale.z);
-                }
-                else
-                {
-                    UltimaDirecao *= -1;
-                    transform.localScale = new Vector3(Mathf.Abs((transform.localScale.x) * -UltimaDirecao), transform.localScale.y, transform.localScale.z);
-                }
-            }
-
-            yield return new WaitForSeconds(wallHopDelay);
-
-            // Se n�o estiver tocando a parede, permite movimento
-            if (!isTouchingWall)
-            {
-                podeMover = true; // Permite movimento normal
-            }
-
-            canWallJumpAgain = true; // Reseta a flag para permitir novo wall hop
-        }
-
-        isWallHopping = false; // Reseta a flag ap�s wallhop
-    }
-
-
-    public void estaNaParede()
+    public void IsWalled()
     {
         if (SideHit.collider != null && DownHit.collider == null)
         {
-            estaNaParedi = true;
+            isOnTheWall = true;
             ForcaPulo = 850;
             podeAtacar = false;
         }
         else
         {
-            estaNaParedi = false;
+            isOnTheWall = false;
             ForcaPulo = 400;
             podeAtacar = false;
         }

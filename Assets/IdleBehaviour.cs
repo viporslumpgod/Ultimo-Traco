@@ -23,7 +23,7 @@ public class IdleBehaviour : StateMachineBehaviour
             player.instance.estaAtacando = false;
         }
 
-        if (player.instance.estaNaParedi == true)
+        if (player.instance.isOnTheWall == true)
         {
             player.instance.animator.Play("WallSliding");
         }
