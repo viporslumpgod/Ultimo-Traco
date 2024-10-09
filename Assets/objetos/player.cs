@@ -44,7 +44,7 @@ public class player : MonoBehaviour
     private Vector2 wallJumpingPower = new Vector2(8f, 16f);
     public float delayDePulo = 1.5f;
     public bool isOnTheWall;
-   
+
     // Variavel cTynhia
     private bool cTynhia = true;
 
@@ -141,14 +141,14 @@ public class player : MonoBehaviour
         crouch();
         WallSlide();
         WallJump();
-        Flip(); 
+        Flip();
 
-        if (!isWallJumping) 
+        if (!isWallJumping)
         {
-            
+
         }
 
-        
+
 
         if (Input.GetKeyDown(KeyCode.LeftShift) && podeDashar && !estaDashando)
         {
@@ -156,8 +156,8 @@ public class player : MonoBehaviour
             animator.SetBool("dash", estaDashando);
         }
 
-        
-        
+
+
     }
 
     void RaycastInteractions(RaycastHit2D Ray)
@@ -216,15 +216,15 @@ public class player : MonoBehaviour
                 {
                     rb.velocity = new Vector2(rb.velocity.x, 0);
                     rb.AddForce(new Vector2(1, 1) * ForcaPulo);
-                   // rb.AddForce(direcaoRay * ForcaPulo);
+                    // rb.AddForce(direcaoRay * ForcaPulo);
                 }
-                else 
+                else
                 {
                     rb.velocity = new Vector2(rb.velocity.x, 0);
                     rb.AddForce(new Vector2(-1, 1) * ForcaPulo);
                     //rb.AddForce(direcaoRay * ForcaPulo);
                 }
-              
+
 
                 estaPulando = true;
                 estaCaindo = false;
@@ -269,7 +269,7 @@ public class player : MonoBehaviour
         }
     }
 
-    
+
     void PuloCarregado()
     {
 
@@ -306,9 +306,9 @@ public class player : MonoBehaviour
     }
 
 
-   //ALL WALLJUMP START
-    
-    
+    //ALL WALLJUMP START
+
+
     private void Flip()
     {
         if (isFacingRight && horizontal < 0f || isFacingRight && horizontal > 1f)
@@ -321,7 +321,7 @@ public class player : MonoBehaviour
     }
     private void WallJump()
     {
-        if  (isWallSliding)
+        if (isWallSliding)
         {
             isWallJumping = false;
             wallJumpingDirection = -transform.localScale.x;
@@ -348,7 +348,7 @@ public class player : MonoBehaviour
                 transform.localScale = localScale;
 
             }
-        
+
 
             Invoke(nameof(StopWallJumping), wallJumpingDuration);
         }
@@ -365,7 +365,7 @@ public class player : MonoBehaviour
         {
             return true;
         }
-        else 
+        else
         {
             return false;
         }
@@ -393,7 +393,7 @@ public class player : MonoBehaviour
 
     private void WallSlide()
     {
-        if (IsWalled() && !IsGrounded() && transform.position.x != 0f) 
+        if (IsWalled() && !IsGrounded() && transform.position.x != 0f)
         {
             isWallSliding = true;
             rb.velocity = new Vector2(rb.velocity.x, Mathf.Clamp(rb.velocity.y, -wallSlidingSpeed, float.MaxValue));
@@ -428,7 +428,7 @@ public class player : MonoBehaviour
             if (podeMover == true && (Input.GetAxisRaw("Horizontal") != 0))
             {
                 rb.velocity = new Vector2(Input.GetAxisRaw("Horizontal") * Velocidade * Time.deltaTime, rb.velocity.y);
-                
+
                 estaAndando = true;
                 horizontal = Input.GetAxisRaw("Horizontal");
                 transform.localScale = new Vector3(Mathf.Abs(transform.localScale.x) * horizontal, transform.localScale.y, transform.localScale.z);
@@ -438,12 +438,12 @@ public class player : MonoBehaviour
             {
                 animator.SetBool("andando", estaAndando);
                 estaAndando = false;
-               
+
             }
 
 
         }
-       
+
     }
 
     public void Ataque()
@@ -489,5 +489,5 @@ public class Modificadores
     public float atackSpeed = 0.5f;
     public float VelocidadePadrao = 650;
     public int VelocidadeBonus;
-    
+
 }
