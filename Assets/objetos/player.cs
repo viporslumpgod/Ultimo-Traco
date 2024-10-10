@@ -123,6 +123,7 @@ public class player : MonoBehaviour
 
         // Raycast pra baixo (pra checar o chão)
         DownHit = Physics2D.Raycast(transform.position, Vector2.down, transform.localScale.y / 3.5f + sizeRaycastjump, jumpLayerMask);
+        Debug.Log(DownHit.collider.gameObject.name);
 
         if (DownHit.collider != null)
         {
@@ -384,7 +385,7 @@ public class player : MonoBehaviour
         else
         {
             isOnTheWall = false;
-            ForcaPulo = 690;
+            ForcaPulo = 900;
             podeAtacar = false;
             return false;
         }
