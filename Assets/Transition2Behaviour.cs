@@ -18,6 +18,8 @@ public class Transition2Behaviour : StateMachineBehaviour
             
             player.instance.animator.Play("Ataque3");
             Espatula.instance.AtivarCollider3();
+            float ataqueProjecao = 20f; // Ajusta esse valor para o quanto você quer que ele se mova
+            player.instance.rb.velocity = new Vector2(player.instance.horizontal * ataqueProjecao, player.instance.rb.velocity.y);
             //player.instance.InputManager();
             player.instance.podeAtacar = true;
 

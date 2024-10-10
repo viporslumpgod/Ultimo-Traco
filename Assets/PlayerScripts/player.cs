@@ -10,7 +10,15 @@ using UnityEngine;
 public class player : MonoBehaviour
 {
     public static player instance;
-    public Rigidbody2D rb { get; private set; }
+    public Rigidbody2D rb;
+
+
+    //variaveis de combate/vida
+    //[SerializeField] public int vidaPlayer;
+
+
+
+
 
     //Variaveis Movimentaçoes e Pulo
     [SerializeField] float VelocidadePadrao;
@@ -19,7 +27,7 @@ public class player : MonoBehaviour
     public float ForcaPuloFrente = 10;
     public int puloduplo = 0;
     public int MaxPayne = 2;
-    float horizontal;
+    public float horizontal;
     bool isFacingRight = true;
     bool estaPulando;
     [SerializeField] KeyCode Keycodepulo;
@@ -29,9 +37,9 @@ public class player : MonoBehaviour
     [SerializeField] float dashSpeed = 5f;
     [SerializeField] float dashDuration = 0.1f;
     [SerializeField] float dashCooldown = 1f;
-    [SerializeField] public int vidaPlayer = 10;
+   
     public bool estaDashando = false;
-    private bool podeDashar = true;
+    public bool podeDashar = true;
 
     // Variaveis WallJump
     public bool isWallSliding;
@@ -68,7 +76,7 @@ public class player : MonoBehaviour
     bool taNoChao;
     bool estaCaindo;
     bool aterrizando;
-    private bool podePular;
+    public bool podePular;
     public bool podeMover;
     public bool podeAtacar = true;
     private float wallHopDelay;
@@ -385,7 +393,7 @@ public class player : MonoBehaviour
         {
             isOnTheWall = false;
             ForcaPulo = 690;
-            podeAtacar = false;
+            podeAtacar = true;
             return false;
         }
 
@@ -455,8 +463,8 @@ public class player : MonoBehaviour
             podeAtacar = false;
 
             // Projeta o player para frente durante o ataque
-            float ataqueProjecao = 9f; // Ajusta esse valor para o quanto você quer que ele se mova
-            rb.velocity = new Vector2(horizontal * ataqueProjecao, rb.velocity.y);
+            //float ataqueProjecao = 15f; // Ajusta esse valor para o quanto você quer que ele se mova
+            //rb.velocity = new Vector2(horizontal * ataqueProjecao, rb.velocity.y);
 
             // Inicia a animação de ataque
             StartCoroutine(Espatula.instance.Ataque());
@@ -473,10 +481,6 @@ public class player : MonoBehaviour
         podeAtacar = true;
     }
 
-    public virtual void levaDano(int dano)
-    {
-        vidaPlayer -= dano;
-    }
 
 }
 

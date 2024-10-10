@@ -17,10 +17,15 @@ public class Transition1Behaviour : StateMachineBehaviour
         {
             player.instance.animator.Play("Ataque2");
             Espatula.instance.AtivarCollider2();
+            float ataqueProjecao = 20f; // Ajusta esse valor para o quanto você quer que ele se mova
+            player.instance.rb.velocity = new Vector2(player.instance.horizontal * ataqueProjecao, player.instance.rb.velocity.y);
             //player.instance.InputManager();
             player.instance.podeAtacar = true;
 
         }
+
+        
+       
     }
         // OnStateExit is called when a transition ends and the state machine finishes evaluating this state
         override public void OnStateExit(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
