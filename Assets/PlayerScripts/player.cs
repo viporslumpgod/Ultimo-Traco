@@ -393,13 +393,9 @@ public class player : MonoBehaviour
         else
         {
             isOnTheWall = false;
-<<<<<<< HEAD:Assets/PlayerScripts/player.cs
             ForcaPulo = 690;
             podeAtacar = true;
-=======
-            ForcaPulo = 900;
-            podeAtacar = false;
->>>>>>> f988d44f2f3e526b58282f50850c64c828fac780:Assets/objetos/player.cs
+
             return false;
         }
 
