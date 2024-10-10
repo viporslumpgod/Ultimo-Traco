@@ -28,12 +28,19 @@ public class IdleBehaviour : StateMachineBehaviour
             player.instance.animator.Play("WallSliding");
         }
 
+        if (player.instance.isCrouching == true)
+        {
+            player.instance.animator.Play("Crouch");
+            
+        }
+
     }
 
     // OnStateExit is called when a transition ends and the state machine finishes evaluating this state
     override public void OnStateExit(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
         player.instance.estaAtacando = false;
+        
     }
 
     // OnStateMove is called right after Animator.OnAnimatorMove()
