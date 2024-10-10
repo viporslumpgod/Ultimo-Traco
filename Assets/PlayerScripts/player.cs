@@ -422,13 +422,11 @@ public class player : MonoBehaviour
         {
             capsuleCollider.enabled = false;
             isCrouching = true;
-            podeMover = false;
         }
         else
         {
             capsuleCollider.enabled = true;
             isCrouching = false;
-            podeMover = true;
         }
     }
 
