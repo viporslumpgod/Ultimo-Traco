@@ -11,6 +11,7 @@ public class player : MonoBehaviour
 {
     public static player instance;
     public Rigidbody2D rb;
+    CapsuleCollider2D capsuleCollider;
 
 
     //variaveis de combate/vida
@@ -20,33 +21,29 @@ public class player : MonoBehaviour
 
 
 
-    //Variaveis Movimentaçoes e Pulo
+    
+    [Header("Variaveis Movimentaçoes e Pulo")]
     [SerializeField] float VelocidadePadrao;
     public float Velocidade;
+    public float horizontal;
     public float ForcaPulo = 10;
     public float ForcaPuloFrente = 10;
-    public int PuloDuplo = 0;
-    public int MaxPayne = 2;
-    public float horizontal;
-    bool isFacingRight = true;
-    public bool taPulando;
-    private bool doubleJump;
     [SerializeField] KeyCode Keycodepulo;
-    CapsuleCollider2D capsuleCollider;
-    
-
+    private bool doubleJump;
+    public bool taPulando;
+    public LayerMask jumpLayerMask;
+    bool isFacingRight = true;
     [SerializeField] private Transform checktaNoChao;
     [SerializeField] private LayerMask layerChao;
 
-    // Variáveis do dash
+    [Header("Variaveis Dash")]
     [SerializeField] float dashSpeed = 5f;
     [SerializeField] float dashDuration = 0.1f;
     [SerializeField] float dashCooldown = 1f;
-
     public bool estaDashando = false;
     public bool podeDashar = true;
 
-    // Variaveis WallJump
+    [Header("Variaveis WallHop")]
     public bool isWallSliding;
     public float wallSlidingSpeed;
     private bool isWallJumping;
@@ -58,23 +55,21 @@ public class player : MonoBehaviour
     public float delayDePulo = 1.5f;
     public bool isOnTheWall;
 
-    // Variavel cTynhia
+    [Header("Variavel cTynhia")]
     private bool cTynhia = true;
-
-
     LayerMask enemylayer;
 
-    //Raycasts e variaveis
+    [Header("Raycasts e suas variaveis")]
     RaycastHit2D DownHit; // Raycast Pulo
     RaycastHit2D SideHit; // Raycast Paredes
     [SerializeField] float sizeRaycastjumpCaindo = 0.3f;
     [SerializeField] float sizeRaycastjump = 2.4f;
     [SerializeField] float sizeRaycastWall = 2f;
     [Tooltip("checked todas as layers que voce deseja que o player ignore quando for pular, inclua a layer player")]
-    public LayerMask jumpLayerMask;
-    [Tooltip("define o tamanho do raycast de pulo")]
+
 
     #region Var animacoes 
+    [Header("Variavel animacoes")]
     public Animator animator;
     public bool estaAndando;
     public bool estaAtacando;
@@ -95,7 +90,6 @@ public class player : MonoBehaviour
         podePular = true;
         podeMover = true;
         estaAtacando = false;
-        PuloDuplo = 0;
         if (instance == null)
         {
             instance = this;
@@ -152,7 +146,7 @@ public class player : MonoBehaviour
 
         // Aqui o código de pulo, ataque, dash, etc.
         Pulo();
-        PuloCarregado();
+        //PuloCarregado();
         Ataque();
         IsWalled();
         Crouch();
@@ -188,7 +182,6 @@ public class player : MonoBehaviour
     {
         estaDashando = true;
         podeDashar = false;
-        podeMover = false;
 
         float originalGravity = rb.gravityScale;
         rb.gravityScale = 0f; // desativa a gravidade durante o dash
@@ -199,22 +192,13 @@ public class player : MonoBehaviour
         rb.velocity = new Vector2(0, rb.velocity.y); // para o movimento horizontal após o dash
         rb.gravityScale = originalGravity; // volta a gravidade
 
-
         estaDashando = false;
         animator.SetBool("dash", estaDashando);
+        
         yield return new WaitForSeconds(dashCooldown); // cooldown do dash
+        
         podeDashar = true;
-        podeMover = true;
 
-
-
-
-
-    }
-
-    IEnumerator DelayDePulo()
-    {
-        yield return new WaitForSeconds(delayDePulo);
     }
 
     public void Pulo()
@@ -228,61 +212,35 @@ public class player : MonoBehaviour
         // Se a tecla de pulo for pressionada
         if (Input.GetKeyDown(Keycodepulo))
         {
-            if (IsGrounded() || doubleJump) // Permite o pulo se estiver no chão ou já usou o double jump
+            // Se o jogador está agachado e no chão, executa o pulo carregado
+            if (IsGrounded() && isCrouching)
+            {
+                Vector2 direcaoRay = horizontal == 1 ? Vector2.right : Vector2.left; // Direção do pulo
+
+                rb.velocity = new Vector2(0, 0); // Reseta a velocidade antes de aplicar a força
+                rb.AddForce(new Vector2(horizontal, 1) * ForcaPuloFrente, ForceMode2D.Impulse); // Aplica o impulso de pulo
+
+                taPulando = true; // Necessário para o animator
+            }
+            // Se o jogador não está agachado, realiza o pulo normal ou o double jump
+            else if (IsGrounded() || doubleJump)
             {
                 taPulando = true; // Necessário para o animator
-
                 rb.velocity = new Vector2(rb.velocity.x, ForcaPulo); // Aplica a força do pulo
-
-                if (!IsGrounded()) // Se não está no chão, ativa o double jump
+            
+                if (!IsGrounded()) // Se não está no chão, usa o double jump
                 {
                     doubleJump = false; // Desativa o double jump após usá-lo
+                    taPulando |= false;
                 }
             }
         }
 
-        // Reduz a altura do pulo se a tecla de pulo for liberada antes de atingir o pico
+        // reduz a altura se a tecla de pulo n for ate o final
         if (Input.GetKeyUp(Keycodepulo) && rb.velocity.y > 0f)
         {
             rb.velocity = new Vector2(rb.velocity.x, rb.velocity.y * 0.5f);
-            taPulando = false;
-        }
-    }
-
-
-
-    void PuloCarregado()
-    {
-
-        if (Input.GetKeyDown(Keycodepulo) && podePular && taNoChao && isCrouching)
-        {
-            PuloDuplo = 2;
-            Vector2 direcaoRay = horizontal == 1 ? Vector2.right : Vector2.left;
-            if (horizontal == 1)
-            {
-                rb.velocity = new Vector2(rb.velocity.x, 0);
-                rb.AddForce(new Vector2(1, 1) * ForcaPulo);
-                rb.AddForce(direcaoRay * ForcaPulo);
-
-            }
-            else if (horizontal == -1)
-            {
-                rb.velocity = new Vector2(rb.velocity.x, 0);
-                rb.AddForce(new Vector2(-1, 1) * ForcaPulo);
-                rb.AddForce(direcaoRay * ForcaPulo);
-
-            }
-
-            taPulando = true;
-            estaCaindo = false;
-
-
-            if (PuloDuplo == 2)
-            {
-                DelayDePulo();
-            }
-
-
+            taPulando = false; // Necessário para o animator
         }
     }
 
@@ -329,6 +287,39 @@ public class player : MonoBehaviour
         isWallJumping = false;
     }
 
+    public bool IsWalled()
+    {
+        if (SideHit.collider != null && DownHit.collider == null)
+        {
+            isOnTheWall = true;
+            ForcaPulo = 200;
+            podeAtacar = false;
+            return true;
+        }
+        else
+        {
+            isOnTheWall = false;
+            ForcaPulo = 20;
+            podeAtacar = true;
+
+            return false;
+        }
+
+    }
+
+    private void WallSlide()
+    {
+        if (IsWalled() && !IsGrounded() && transform.position.x != 0f)
+        {
+            isWallSliding = true;
+            rb.velocity = new Vector2(rb.velocity.x, Mathf.Clamp(rb.velocity.y, -wallSlidingSpeed, float.MaxValue));
+        }
+        else
+        {
+            isWallSliding = false;
+        }
+    }
+
     private bool IsGrounded()
     {
         // Verifica se está colidindo com o chão usando o OverlapCircle
@@ -349,38 +340,7 @@ public class player : MonoBehaviour
     }
 
 
-    public bool IsWalled()
-    {
-        if (SideHit.collider != null && DownHit.collider == null)
-        {
-            isOnTheWall = true;
-            ForcaPulo = 850;
-            podeAtacar = false;
-            return true;
-        }
-        else
-        {
-            isOnTheWall = false;
-            //ForcaPulo = 690;
-            podeAtacar = true;
-
-            return false;
-        }
-
-    }
-
-    private void WallSlide()
-    {
-        if (IsWalled() && !IsGrounded() && transform.position.x != 0f)
-        {
-            isWallSliding = true;
-            rb.velocity = new Vector2(rb.velocity.x, Mathf.Clamp(rb.velocity.y, -wallSlidingSpeed, float.MaxValue));
-        }
-        else
-        {
-            isWallSliding = false;
-        }
-    }
+    
 
     //ALL WALLJUMP END
 

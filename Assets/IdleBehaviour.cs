@@ -18,8 +18,6 @@ public class IdleBehaviour : StateMachineBehaviour
         {
             player.instance.animator.Play("Ataque1");
             Espatula.instance.AtivarCollider1();
-
-
             player.instance.estaAtacando = false;
         }
 
@@ -41,12 +39,14 @@ public class IdleBehaviour : StateMachineBehaviour
 
         }
 
-        if (player.instance.estaDashando)
+        if (player.instance.estaDashando && player.instance.taNoChao)
         {
             player.instance.animator.Play("Dash");
         }
 
-        if(player.instance.isCrouching)
+        
+
+        if (player.instance.isCrouching)
         {
             player.instance.animator.Play("Crouch");
         }

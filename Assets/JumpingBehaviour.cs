@@ -22,7 +22,14 @@ public class JumpingBehaviour : StateMachineBehaviour
         if (player.instance.taPulando)
         {
             player.instance.animator.Play("Pulo");
+            player.instance.taPulando = false;
         }
+
+        if (player.instance.estaDashando && player.instance.taNoChao == false)
+        {
+            player.instance.animator.Play("AirDash");
+        }
+
     }
 
     // OnStateExit is called before OnStateExit is called on any state inside this state machine
