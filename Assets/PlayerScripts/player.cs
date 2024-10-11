@@ -323,7 +323,7 @@ public class player : MonoBehaviour
     private bool IsGrounded()
     {
         // Verifica se está colidindo com o chão usando o OverlapCircle
-        bool estaNoChao = Physics2D.OverlapCircle(checktaNoChao.position, 0.2f, layerChao);
+        bool estaNoChao = Physics2D.OverlapCircle(checktaNoChao.position, 1f, layerChao);
 
         if (estaNoChao)
         {

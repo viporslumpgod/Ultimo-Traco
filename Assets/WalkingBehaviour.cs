@@ -22,6 +22,11 @@ public class WalkingBehaviour : StateMachineBehaviour
             player.instance.animator.Play("Walk");
         }
 
+        if (player.instance.estaAndando && player.instance.taNoChao == false)
+        {
+            player.instance.animator.Play("Falling");
+        }
+
         if (player.instance.isOnTheWall == true)
         {
             player.instance.animator.Play("WallSliding");
