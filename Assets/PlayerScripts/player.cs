@@ -188,6 +188,7 @@ public class player : MonoBehaviour
     {
         estaDashando = true;
         podeDashar = false;
+        podeMover = false;
 
         float originalGravity = rb.gravityScale;
         rb.gravityScale = 0f; // desativa a gravidade durante o dash
@@ -203,6 +204,7 @@ public class player : MonoBehaviour
         animator.SetBool("dash", estaDashando);
         yield return new WaitForSeconds(dashCooldown); // cooldown do dash
         podeDashar = true;
+        podeMover = true;
 
 
 
