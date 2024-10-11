@@ -5,18 +5,34 @@ using UnityEngine;
 public class WalkingBehaviour : StateMachineBehaviour
 {
     // OnStateEnter is called when a transition starts and the state machine starts to evaluate this state
-    //override public void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
-    //{
-    //    
-    //}
+    override public void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
+    {
+        if (player.instance.estaAndando == true)
+        {
+            player.instance.animator.Play("Walk");
+        }
+
+    }
 
     // OnStateUpdate is called on each Update frame between OnStateEnter and OnStateExit callbacks
     override public void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
+        if (player.instance.estaAndando && player.instance.taNoChao)
+        {
+            player.instance.animator.Play("Walk");
+        }
+
         if (player.instance.isOnTheWall == true)
         {
             player.instance.animator.Play("WallSliding");
         }
+
+        if (player.instance.taPulando == true)
+        {
+            player.instance.animator.Play("Pulo");
+        }
+
+
     }
 
     // OnStateExit is called when a transition ends and the state machine finishes evaluating this state

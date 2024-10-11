@@ -25,13 +25,18 @@ public class player : MonoBehaviour
     public float Velocidade;
     public float ForcaPulo = 10;
     public float ForcaPuloFrente = 10;
-    public int puloduplo = 0;
+    public int PuloDuplo = 0;
     public int MaxPayne = 2;
     public float horizontal;
     bool isFacingRight = true;
-    bool estaPulando;
+    public bool taPulando;
+    private bool doubleJump;
     [SerializeField] KeyCode Keycodepulo;
     CapsuleCollider2D capsuleCollider;
+    
+
+    [SerializeField] private Transform checktaNoChao;
+    [SerializeField] private LayerMask layerChao;
 
     // Variáveis do dash
     [SerializeField] float dashSpeed = 5f;
@@ -73,9 +78,9 @@ public class player : MonoBehaviour
     public Animator animator;
     public bool estaAndando;
     public bool estaAtacando;
-    bool taNoChao;
-    bool estaCaindo;
-    bool aterrizando;
+    public bool taNoChao;
+    public bool estaCaindo;
+    public bool aterrizando;
     public bool podePular;
     public bool podeMover;
     public bool podeAtacar = true;
@@ -86,10 +91,11 @@ public class player : MonoBehaviour
 
     private void Awake()
     {
+        taPulando = false;
         podePular = true;
         podeMover = true;
         estaAtacando = false;
-        puloduplo = 0;
+        PuloDuplo = 0;
         if (instance == null)
         {
             instance = this;
@@ -115,6 +121,8 @@ public class player : MonoBehaviour
     void Start()
     {
 
+        
+
         Velocidade = VelocidadePadrao;
         animator = GetComponent<Animator>();
     }
@@ -130,8 +138,8 @@ public class player : MonoBehaviour
         Debug.DrawRay(transform.position, direcaoRay * sizeRaycastWall, Color.green);
 
         // Raycast pra baixo (pra checar o chão)
-        DownHit = Physics2D.Raycast(transform.position, Vector2.down, transform.localScale.y / 3.5f + sizeRaycastjump, jumpLayerMask);
-        Debug.Log(DownHit.collider.gameObject.name);
+        DownHit = Physics2D.Raycast(transform.position, Vector2.down, transform.localScale.y / 3f + sizeRaycastjump, jumpLayerMask);
+        //Debug.Log(DownHit.collider.gameObject.name);
 
         if (DownHit.collider != null)
         {
@@ -147,7 +155,7 @@ public class player : MonoBehaviour
         PuloCarregado();
         Ataque();
         IsWalled();
-        crouch();
+        Crouch();
         WallSlide();
         WallJump();
         Flip();
@@ -157,15 +165,13 @@ public class player : MonoBehaviour
 
         }
 
-
+        
 
         if (Input.GetKeyDown(KeyCode.LeftShift) && podeDashar && !estaDashando)
         {
             StartCoroutine(StartDashing());
             animator.SetBool("dash", estaDashando);
         }
-
-
 
     }
 
@@ -208,75 +214,39 @@ public class player : MonoBehaviour
     {
         yield return new WaitForSeconds(delayDePulo);
     }
-    bool Pulo()
+
+    public void Pulo()
     {
-        if (Input.GetKeyDown(Keycodepulo) && podePular)
+        // Se o jogador está no chão e não está pressionando a tecla de pulo, redefine o double jump
+        if (IsGrounded())
         {
-            Vector2 direcaoRay = horizontal == 1 ? Vector2.right : Vector2.left;
-            puloduplo++;
+            doubleJump = true; // Ativa o double jump novamente ao tocar o chão
+        }
 
-            StartCoroutine(DelayDePulo());
-
-            if (DownHit.collider != null || puloduplo < MaxPayne)
+        // Se a tecla de pulo for pressionada
+        if (Input.GetKeyDown(Keycodepulo))
+        {
+            if (IsGrounded() || doubleJump) // Permite o pulo se estiver no chão ou já usou o double jump
             {
+                taPulando = true; // Necessário para o animator
 
+                rb.velocity = new Vector2(rb.velocity.x, ForcaPulo); // Aplica a força do pulo
 
-                if (horizontal == 1)
+                if (!IsGrounded()) // Se não está no chão, ativa o double jump
                 {
-                    rb.velocity = new Vector2(rb.velocity.x, 0);
-                    rb.AddForce(new Vector2(1, 1) * ForcaPulo);
-                    // rb.AddForce(direcaoRay * ForcaPulo);
+                    doubleJump = false; // Desativa o double jump após usá-lo
                 }
-                else
-                {
-                    rb.velocity = new Vector2(rb.velocity.x, 0);
-                    rb.AddForce(new Vector2(-1, 1) * ForcaPulo);
-                    //rb.AddForce(direcaoRay * ForcaPulo);
-                }
-
-
-                estaPulando = true;
-                estaCaindo = false;
-
-
-                if (puloduplo == 2)
-                {
-                    DelayDePulo();
-                }
-
             }
         }
 
-        animator.SetBool("aterrizando", aterrizando);
-        aterrizando = false;
-        animator.SetBool("caindo", estaCaindo);
-        estaCaindo = false;
-        animator.SetBool("estaPulando", estaPulando);
-
-        if (DownHit.collider != null)
+        // Reduz a altura do pulo se a tecla de pulo for liberada antes de atingir o pico
+        if (Input.GetKeyUp(Keycodepulo) && rb.velocity.y > 0f)
         {
-            Debug.DrawRay(transform.position, Vector2.down * (transform.localScale.y / 3f + sizeRaycastjump), Color.red);
-
-
-            estaPulando = false;
-            taNoChao = true;
-            aterrizando = true;
-            MaxPayne = 2;
-            animator.SetBool("noChao", taNoChao);
-            puloduplo = 0;
-            return false;
-
-        }
-        else
-        {
-            estaPulando = true;
-            Debug.DrawRay(transform.position, Vector2.down * (transform.localScale.y / sizeRaycastjumpCaindo), Color.blue);
-            estaCaindo = true;
-            taNoChao = false;
-            return true;
-
+            rb.velocity = new Vector2(rb.velocity.x, rb.velocity.y * 0.5f);
+            taPulando = false;
         }
     }
+
 
 
     void PuloCarregado()
@@ -284,7 +254,7 @@ public class player : MonoBehaviour
 
         if (Input.GetKeyDown(Keycodepulo) && podePular && taNoChao && isCrouching)
         {
-            puloduplo = 2;
+            PuloDuplo = 2;
             Vector2 direcaoRay = horizontal == 1 ? Vector2.right : Vector2.left;
             if (horizontal == 1)
             {
@@ -301,11 +271,11 @@ public class player : MonoBehaviour
 
             }
 
-            estaPulando = true;
+            taPulando = true;
             estaCaindo = false;
 
 
-            if (puloduplo == 2)
+            if (PuloDuplo == 2)
             {
                 DelayDePulo();
             }
@@ -317,17 +287,6 @@ public class player : MonoBehaviour
 
     //ALL WALLJUMP START
 
-
-    private void Flip()
-    {
-        if (isFacingRight && horizontal < 0f || isFacingRight && horizontal > 1f)
-        {
-            isFacingRight = !isFacingRight;
-            Vector3 localScale = transform.localScale;
-            localScale.x *= -1f;
-            transform.localScale = localScale;
-        }
-    }
     private void WallJump()
     {
         if (isWallSliding)
@@ -368,16 +327,23 @@ public class player : MonoBehaviour
         isWallJumping = false;
     }
 
-    bool IsGrounded()
+    private bool IsGrounded()
     {
-        if (DownHit.collider != null)
+        // Verifica se está colidindo com o chão usando o OverlapCircle
+        bool estaNoChao = Physics2D.OverlapCircle(checktaNoChao.position, 0.2f, layerChao);
+
+        if (estaNoChao)
         {
-            return true;
+            taNoChao = true;
+            animator.SetBool("noChao", true); // Ativa a animação de "no chão"
         }
         else
         {
-            return false;
+            taNoChao = false;
+            animator.SetBool("noChao", false); // Desativa a animação de "no chão"
         }
+
+        return estaNoChao; // Retorna o estado de "no chão" para outros usos
     }
 
 
@@ -393,7 +359,7 @@ public class player : MonoBehaviour
         else
         {
             isOnTheWall = false;
-            ForcaPulo = 690;
+            //ForcaPulo = 690;
             podeAtacar = true;
 
             return false;
@@ -416,7 +382,7 @@ public class player : MonoBehaviour
 
     //ALL WALLJUMP END
 
-    void crouch()
+    void Crouch()
     {
         if (Input.GetKey(KeyCode.S) && taNoChao)
         {
@@ -432,25 +398,34 @@ public class player : MonoBehaviour
         }
     }
 
+    private void Flip()
+    {
+        if (isFacingRight && horizontal < 0f || isFacingRight && horizontal > 1f)
+        {
+            isFacingRight = !isFacingRight;
+            Vector3 localScale = transform.localScale;
+            localScale.x *= -1f;
+            transform.localScale = localScale;
+        }
+    }
 
-    void MovePlayer()
+    public void MovePlayer()
     {
         if (!estaDashando) //Nao deixa movimento durante dash
         {
             if (podeMover == true && (Input.GetAxisRaw("Horizontal") != 0))
             {
                 rb.velocity = new Vector2(Input.GetAxisRaw("Horizontal") * Velocidade * Time.deltaTime, rb.velocity.y);
-
                 estaAndando = true;
+                animator.SetBool("andando", true);
+                taNoChao = true;
                 horizontal = Input.GetAxisRaw("Horizontal");
-                transform.localScale = new Vector3(Mathf.Abs(transform.localScale.x) * horizontal, transform.localScale.y, transform.localScale.z);
-                animator.SetBool("andando", estaAndando);
+                transform.localScale = new Vector3(Mathf.Abs(transform.localScale.x) * horizontal, transform.localScale.y, transform.localScale.z);               
             }
             else
             {
-                animator.SetBool("andando", estaAndando);
+                animator.SetBool("andando", false);
                 estaAndando = false;
-
             }
 
 
