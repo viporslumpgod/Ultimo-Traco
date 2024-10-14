@@ -52,7 +52,7 @@ public class Health : MonoBehaviour
     }
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.G))
+        if (Input.GetKeyDown(KeyCode.F))
         {
             TakeDamage(5);
         }
