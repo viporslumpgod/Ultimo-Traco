@@ -19,6 +19,11 @@ public class EnemyPatrol : MonoBehaviour
     [Header("Idle Behavior")]
     [SerializeField] private float idleDuration;
     private float idleTimer;
+
+    [Header("Enemy Animator")]
+    [SerializeField]private Animator animator;
+
+
     private void Awake()
     {
         Initscale = enemy.localScale;
@@ -56,7 +61,7 @@ public class EnemyPatrol : MonoBehaviour
 
     private void DirectionChange()
     {
-
+        animator.SetBool("moving", false);
         idleTimer += Time.deltaTime;
 
         if(idleTimer > idleDuration)
@@ -68,6 +73,8 @@ public class EnemyPatrol : MonoBehaviour
 
     private void MoveInCorrectDirection(int direction)
     {
+        animator.SetBool("moving" , true);
+
         idleTimer = 0;
         //olhar pro lado certo 
         enemy.localScale = new Vector3(Mathf.Abs(Initscale.x) * direction, Initscale.y, Initscale.z);
