@@ -2,6 +2,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using Unity.VisualScripting;
 using UnityEngine;
 
@@ -58,6 +59,7 @@ public class player : MonoBehaviour
     [Header("Variavel cTynhia")]
     private bool cTynhia = true;
     LayerMask enemylayer;
+    private Health enemyHealth;
 
     [Header("Raycasts e suas variaveis")]
     RaycastHit2D DownHit; // Raycast Pulo
@@ -397,11 +399,13 @@ public class player : MonoBehaviour
 
     public void Ataque()
     {
+
         if (Input.GetMouseButtonDown(0) && podeAtacar == true)
         {
             podeMover = false; // Impede o movimento enquanto ataca
             estaAtacando = true;
             podeAtacar = false;
+            enemyHealth.TakeDamage(Espatula.instance.dano);
 
             // Projeta o player para frente durante o ataque
             //float ataqueProjecao = 15f; // Ajusta esse valor para o quanto você quer que ele se mova
