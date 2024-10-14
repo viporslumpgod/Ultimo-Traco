@@ -17,6 +17,11 @@ public class FallingBehaviour : StateMachineBehaviour
         {
             player.instance.animator.Play("WallSliding");
         }
+
+        if(player.instance.estaDashando) 
+        { 
+            player.instance.animator.Play("AirDash")
+        }
     }
 
     // OnStateExit is called when a transition ends and the state machine finishes evaluating this state
