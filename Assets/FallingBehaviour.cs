@@ -18,12 +18,13 @@ public class FallingBehaviour : StateMachineBehaviour
             player.instance.animator.Play("WallSliding");
         }
 
+
         if (player.instance.taNoChao == false)
         {
             player.instance.animator.Play("Falling");
         }
 
-        if (player.instance.estaDashando) 
+        if(player.instance.estaDashando) 
         {
             player.instance.animator.Play("AirDash");
         }
