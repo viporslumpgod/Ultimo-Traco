@@ -58,7 +58,7 @@ public class itemSlot : MonoBehaviour, IPointerClickHandler
 
     public void OnLeftClick()
     {
-        menuManager.DeselectAllSlots();
+        //menuManager.DeselectAllSlots();
         selectedShader.SetActive(true);
         thisItemSelected = true;
        
