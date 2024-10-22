@@ -22,6 +22,15 @@ public class IdleBehaviour : StateMachineBehaviour
             Espatula.instance.damage = 1000;
         }
 
+        if (player.instance.estaAtacando && player.instance.taNoChao == false)
+        {
+            player.instance.animator.Play("Ataque3");
+            Espatula.instance.AtivarCollider1();
+            player.instance.estaAtacando = false;
+            Espatula.instance.damage = 1000;
+        }
+
+
         if (player.instance.taPulando == true)
         {
             player.instance.animator.Play("Pulo");

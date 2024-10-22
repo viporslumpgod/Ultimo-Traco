@@ -30,6 +30,14 @@ public class JumpingBehaviour : StateMachineBehaviour
             player.instance.animator.Play("AirDash");
         }
 
+        if (Input.GetKeyDown(KeyCode.Mouse0) && player.instance.taNoChao == false)
+        {
+            player.instance.animator.Play("Ataque3");
+            Espatula.instance.AtivarCollider3();
+            player.instance.estaAtacando = false;
+            Espatula.instance.damage = 1000;
+        }
+
     }
 
     // OnStateExit is called before OnStateExit is called on any state inside this state machine
