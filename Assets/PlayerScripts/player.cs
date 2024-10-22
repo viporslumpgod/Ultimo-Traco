@@ -293,20 +293,27 @@ public class player : MonoBehaviour
     {
         if (SideHit.collider != null && DownHit.collider == null)
         {
-            isOnTheWall = true;
-            ForcaPulo = 200;
-            podeAtacar = false;
-            return true;
+            // Verifica se a parede tem a layer "paredesescalavel"
+            if (SideHit.collider.gameObject.layer == LayerMask.NameToLayer("ParedeEscalavel"))
+            {
+                isOnTheWall = true;
+                ForcaPulo = 200;
+                podeAtacar = false;
+                return true;
+            }
+            else
+            {
+                isOnTheWall = false;
+                return false;
+            }
         }
         else
         {
             isOnTheWall = false;
             ForcaPulo = 20;
             podeAtacar = true;
-
             return false;
         }
-
     }
 
     private void WallSlide()
