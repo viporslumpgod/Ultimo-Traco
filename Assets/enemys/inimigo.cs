@@ -5,13 +5,19 @@ using UnityEngine;
 
 public class inimigo : MonoBehaviour
 {
-    [SerializeField] public int vida { get; protected set; } = 10000000;
+    [SerializeField] public virtual int vida { get; protected set; } = 10000000;
 
-    public void levaDano(int dano)
+    public virtual void levaDano(int dano)
     {
        
         vida -= dano;
-        Debug.Log(vida);
+        
     }
+
+    public void Die()
+    {
+        Destroy(gameObject);
+    }
+
 
 }

@@ -60,6 +60,7 @@ public class player : MonoBehaviour
     private bool cTynhia = true;
     LayerMask enemylayer;
     private Health enemyHealth;
+    private BossHealth bossHealth;
 
     [Header("Raycasts e suas variaveis")]
     RaycastHit2D DownHit; // Raycast Pulo
@@ -410,18 +411,24 @@ public class player : MonoBehaviour
 
         if (Input.GetMouseButtonDown(0) && !estaAndando)
         {
-
+                      
             podeMover = false; // Impede o movimento enquanto ataca
             estaAtacando = true;
             podeAtacar = false;
-            enemyHealth.TakeDamage(Espatula.instance.dano);
 
             // Inicia a animação de ataque
             StartCoroutine(Espatula.instance.Ataque());
 
         }
     }
-   
+    IEnumerator ResetarMovimentoAposAtaque()
+    {
+        yield return new WaitForSeconds(0.5f); // Define o tempo do ataque antes de permitir o movimento de novo
+        podeMover = true;
+        estaAtacando = false;
+        podeAtacar = true;
+    }
+
 
 }
 

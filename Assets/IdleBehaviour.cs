@@ -19,7 +19,7 @@ public class IdleBehaviour : StateMachineBehaviour
             player.instance.animator.Play("Ataque1");
             Espatula.instance.AtivarCollider1();
             player.instance.estaAtacando = false;
-            Espatula.instance.dano = 1000;
+            Espatula.instance.damage = 1000;
         }
 
         if (player.instance.taPulando == true)

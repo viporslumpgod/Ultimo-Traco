@@ -1,5 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
+using UnityEditor.PackageManager;
 using UnityEngine;
 
 public class Espatula : MonoBehaviour
@@ -19,7 +21,7 @@ public class Espatula : MonoBehaviour
     private CapsuleCollider2D playerCollider; // o colider do palyer
 
     protected Collider2D colisorDano;
-    [SerializeField] public int dano;
+    [SerializeField] public int damage;
     [SerializeField] public float velocidadeAtaque;
     public bool podeAtacar { get; protected set; } = true;
     protected float tempoUltimoAtaque;
@@ -27,12 +29,18 @@ public class Espatula : MonoBehaviour
     // Sobrescrevendo o método Start para modificar as variáveis específicas da Espátula
     protected virtual void Start()
     {
+
+        foreach (Transform t in transform)
+        {
+            t.AddComponent<DanoDoPlayer>();
+        }
+
         //player.instance.GetComponent<Collider2D>().enabled = true;  //ativar o collider do player
         instance = this;
 
         // Configurações iniciais padrão que podem ser modificadas nas classes filhas
-        colisorDano = GetComponent<Collider2D>();
-        colisorDano.enabled = false;
+       // colisorDano = GetComponent<Collider2D>();
+       // colisorDano.enabled = false;
 
        
             // Acessa os Colliders dos GameObjects
@@ -112,13 +120,16 @@ public class Espatula : MonoBehaviour
         
 
     }
-    protected virtual void OnTriggerEnter2D(Collider2D collision)
+    public void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.GetComponent<inimigo>() != null)
-        {
-            collision.GetComponent<inimigo>().levaDano(dano);
-        }
+        Debug.Log("teste");
+      //  if (collision.CompareTag ("Enemy"))
+       // {
+            //collision.GetComponent<inimigo>().levaDano(damage);
+       // }
+
+        
+       
     }
 
-    
 }

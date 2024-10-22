@@ -16,7 +16,7 @@ public class Health : MonoBehaviour
     [SerializeField] private int numberOfFlashes;
     private SpriteRenderer spriteRend;
     private Animator animator;
-
+    BossHealth health;
     private void Awake()
     {
         currentHealth = startingHealth;
@@ -40,11 +40,16 @@ public class Health : MonoBehaviour
                 animator.SetTrigger("die");
                 player.instance.enabled = false;
                 dead = true;
+               
             }
            
         }
     }
 
+    public void Morreu()
+    {
+        Time.timeScale = 0;
+    }
 
     public void AddHealth(float value)
     {
@@ -54,7 +59,8 @@ public class Health : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.F))
         {
-            TakeDamage(5);
+            TakeDamage(100);
+            
         }
     }
 
