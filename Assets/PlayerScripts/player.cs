@@ -22,7 +22,7 @@ public class player : MonoBehaviour
 
 
 
-    
+
     [Header("Variaveis Movimentaçoes e Pulo")]
     [SerializeField] float VelocidadePadrao;
     public float Velocidade;
@@ -117,7 +117,7 @@ public class player : MonoBehaviour
     void Start()
     {
 
-        
+
 
         Velocidade = VelocidadePadrao;
         animator = GetComponent<Animator>();
@@ -161,7 +161,7 @@ public class player : MonoBehaviour
 
         }
 
-        
+
 
         if (Input.GetKeyDown(KeyCode.LeftShift) && podeDashar && !estaDashando)
         {
@@ -196,9 +196,9 @@ public class player : MonoBehaviour
 
         estaDashando = false;
         animator.SetBool("dash", estaDashando);
-        
+
         yield return new WaitForSeconds(dashCooldown); // cooldown do dash
-        
+
         podeDashar = true;
 
     }
@@ -229,7 +229,7 @@ public class player : MonoBehaviour
             {
                 taPulando = true; // Necessário para o animator
                 rb.velocity = new Vector2(rb.velocity.x, ForcaPulo); // Aplica a força do pulo
-            
+
                 if (!IsGrounded()) // Se não está no chão, usa o double jump
                 {
                     doubleJump = false; // Desativa o double jump após usá-lo
@@ -349,7 +349,7 @@ public class player : MonoBehaviour
     }
 
 
-    
+
 
     //ALL WALLJUMP END
 
@@ -382,70 +382,49 @@ public class player : MonoBehaviour
 
     public void MovePlayer()
     {
-        if (!estaDashando) //Nao deixa movimento durante dash
+        if (!estaDashando) // Não deixa o player se mover durante o dash ou se podeMover for false
         {
-            if (podeMover == true && (Input.GetAxisRaw("Horizontal") != 0))
+            if (Input.GetAxisRaw("Horizontal") != 0 && estaAtacando == false)
             {
                 rb.velocity = new Vector2(Input.GetAxisRaw("Horizontal") * Velocidade * Time.deltaTime, rb.velocity.y);
                 estaAndando = true;
+                podeAtacar = false;
                 animator.SetBool("andando", true);
-                taNoChao = true;
                 horizontal = Input.GetAxisRaw("Horizontal");
-                transform.localScale = new Vector3(Mathf.Abs(transform.localScale.x) * horizontal, transform.localScale.y, transform.localScale.z);               
+
+
+                // Mantém a direção do personagem
+                transform.localScale = new Vector3(Mathf.Abs(transform.localScale.x) * horizontal, transform.localScale.y, transform.localScale.z);
             }
             else
             {
+                podeAtacar = true;
                 animator.SetBool("andando", false);
                 estaAndando = false;
             }
-
-
         }
-
     }
 
     public void Ataque()
     {
 
-        if (Input.GetMouseButtonDown(0) && podeAtacar == true)
+        if (Input.GetMouseButtonDown(0) && !estaAndando)
         {
+
             podeMover = false; // Impede o movimento enquanto ataca
             estaAtacando = true;
             podeAtacar = false;
             enemyHealth.TakeDamage(Espatula.instance.dano);
 
-            // Projeta o player para frente durante o ataque
-            //float ataqueProjecao = 15f; // Ajusta esse valor para o quanto você quer que ele se mova
-            //rb.velocity = new Vector2(horizontal * ataqueProjecao, rb.velocity.y);
-
             // Inicia a animação de ataque
             StartCoroutine(Espatula.instance.Ataque());
 
-            // Espera um tempo para permitir que o ataque termine antes de poder se mover de novo
-            StartCoroutine(ResetarMovimentoAposAtaque());
         }
     }
-    IEnumerator ResetarMovimentoAposAtaque()
-    {
-        yield return new WaitForSeconds(0.5f); // Define o tempo do ataque antes de permitir o movimento de novo
-        podeMover = true;
-        estaAtacando = false;
-        podeAtacar = true;
-    }
-
+   
 
 }
 
-[Serializable]
-public class Modificadores
-{
 
-    public int vidaPlayerMax = 10;
-    public int dano = 1;
-    public float atackSpeed = 0.5f;
-    public float VelocidadePadrao = 650;
-    public int VelocidadeBonus;
-
-}
 
 

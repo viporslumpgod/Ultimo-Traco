@@ -94,22 +94,22 @@ public class Espatula : MonoBehaviour
     // Sobrescrevendo o método de ataque para comportamentos específicos da Espátula
     public IEnumerator Ataque()
     {
-
-
         // Ativa o colisor para causar dano
         colisorDano.enabled = true;
         podeAtacar = false;
+        
         // Espera o tempo do ataque (velocidadeAtaque)
-        yield return new WaitForSeconds(velocidadeAtaque);
+        yield return new WaitForSeconds(2f);
 
         // Desativa o colisor após o tempo de ataque
         colisorDano.enabled = false;
         podeAtacar = false;
         // Espera o tempo de cooldown (que é o mesmo que a velocidade do ataque)
-        yield return new WaitForSeconds(velocidadeAtaque);
+        yield return new WaitForSeconds(2f);
 
         // Após o cooldown, pode atacar novamente
         podeAtacar = true;
+        
 
     }
     protected virtual void OnTriggerEnter2D(Collider2D collision)
