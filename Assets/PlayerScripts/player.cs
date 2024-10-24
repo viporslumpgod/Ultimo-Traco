@@ -36,6 +36,8 @@ public class player : MonoBehaviour
     bool isFacingRight = true;
     [SerializeField] private Transform checktaNoChao;
     [SerializeField] private LayerMask layerChao;
+    [SerializeField] private Transform checktaNaParede;
+    [SerializeField] private LayerMask ParedeEscalavel;
 
     [Header("Variaveis Dash")]
     [SerializeField] float dashSpeed = 5f;
@@ -110,9 +112,19 @@ public class player : MonoBehaviour
 
     void FixedUpdate()
     {
-        MovePlayer();
         RaycastInteractions(DownHit);
+        // Verifica se tá em contato com uma parede não escalável
+        bool estaEncostadoNaParedeNaoEscalavel = IsWalled() && SideHit.collider != null && SideHit.collider.gameObject.layer != LayerMask.NameToLayer("ParedeEscalavel");
 
+        if (!estaDashando && podeMover && !estaEncostadoNaParedeNaoEscalavel)
+        {
+            MovePlayer(); // Movimenta só se não estiver encostado em uma parede não escalável
+        }
+        else if (estaEncostadoNaParedeNaoEscalavel)
+        {
+            // Se encostado em uma parede não escalável, zera a velocidade
+            rb.velocity = new Vector2(0, rb.velocity.y);
+        }
     }
 
     void Start()
@@ -294,6 +306,7 @@ public class player : MonoBehaviour
     {
         if (SideHit.collider != null && DownHit.collider == null)
         {
+            bool IsWalled = Physics2D.OverlapCircle(checktaNaParede.position, 1f, ParedeEscalavel);
             // Verifica se a parede tem a layer "paredesescalavel"
             if (SideHit.collider.gameObject.layer == LayerMask.NameToLayer("ParedeEscalavel"))
             {
@@ -383,28 +396,27 @@ public class player : MonoBehaviour
 
     public void MovePlayer()
     {
-        if (!estaDashando) // Não deixa o player se mover durante o dash ou se podeMover for false
+        if (Input.GetAxisRaw("Horizontal") != 0 && !estaAtacando)
         {
-            if (Input.GetAxisRaw("Horizontal") != 0 && estaAtacando == false)
-            {
-                rb.velocity = new Vector2(Input.GetAxisRaw("Horizontal") * Velocidade * Time.deltaTime, rb.velocity.y);
-                estaAndando = true;
-                podeAtacar = false;
-                animator.SetBool("andando", true);
-                horizontal = Input.GetAxisRaw("Horizontal");
+            // Movimentação normal se não estiver atacando
+            rb.velocity = new Vector2(Input.GetAxisRaw("Horizontal") * Velocidade * Time.deltaTime, rb.velocity.y);
+            estaAndando = true;
+            podeAtacar = false;
+            animator.SetBool("andando", true);
+            horizontal = Input.GetAxisRaw("Horizontal");
 
-
-                // Mantém a direção do personagem
-                transform.localScale = new Vector3(Mathf.Abs(transform.localScale.x) * horizontal, transform.localScale.y, transform.localScale.z);
-            }
-            else
-            {
-                podeAtacar = true;
-                animator.SetBool("andando", false);
-                estaAndando = false;
-            }
+            // Mantém a direção do personagem
+            transform.localScale = new Vector3(Mathf.Abs(transform.localScale.x) * horizontal, transform.localScale.y, transform.localScale.z);
+        }
+        else
+        {
+            // Se não há input, reseta as variáveis
+            animator.SetBool("andando", false);
+            estaAndando = false;
         }
     }
+
+
 
     public void Ataque()
     {
